@@ -122,8 +122,33 @@ export async function getProducts(params?: {
   if (params?.size !== undefined) q.set("size", String(params.size));
   if (params?.keyword) q.set("keyword", params.keyword);
   if (params?.status) q.set("status", params.status);
-  const res = await apiFetch<ApiResponse<ProductPage>>(`/api/products?${q}`);
-  return res.data;
+
+  // 여기서 일단 any로 받아서 우리가 직접 모양을 검사해 주는 게 제일 안전해!
+  const res = await apiFetch<ApiResponse<any>>(`/api/products?${q}`);
+  
+  // 🔥 디버깅용: 콘솔에 실제 백엔드가 준 데이터 모양 띄워보기
+  console.log("백엔드가 준 getProducts 원본 데이터:", res.data);
+
+  // 방어 시나리오 1: 백엔드에서 그냥 List(배열)로 내려준 경우
+  if (Array.isArray(res.data)) {
+    return {
+      content: res.data,
+      totalElements: res.data.length,
+      totalPages: 1,
+      number: 0,
+      size: res.data.length,
+    };
+  }
+
+  // 방어 시나리오 2: 백엔드에서 정상적인 Page 객체로 내려준 경우
+  // 혹시 res.data 안에 content가 없을 수도 있으니 최소한의 빈 배열([]) 방어막 추가
+  return {
+    content: res.data?.content || [],
+    totalElements: res.data?.totalElements || 0,
+    totalPages: res.data?.totalPages || 0,
+    number: res.data?.number || 0,
+    size: res.data?.size || 0,
+  };
 }
 
 export async function getProduct(id: number): Promise<Product> {
