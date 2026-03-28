@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Search, ShoppingCart } from "lucide-react";
+import Link from "next/link";
 
 export default function ShopLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +8,7 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b">
         <div className="max-w-6xl mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="text-xl font-bold text-indigo-600">
-            SellerHub Shop
+            TaoKorea Shop
           </Link>
 
           <div className="flex items-center gap-2 flex-1 max-w-sm mx-6">
@@ -40,7 +40,7 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
       {/* Footer */}
       <footer className="border-t bg-gray-50 dark:bg-gray-900 py-8">
         <div className="max-w-6xl mx-auto px-4 text-center text-sm text-gray-500">
-          <p>© 2025 SellerHub Shop. 타오바오 공식 파트너샵</p>
+          <p>© 2025 TaoKorea Shop. 타오바오 공식 파트너샵</p>
         </div>
       </footer>
     </div>

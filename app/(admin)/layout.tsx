@@ -1,21 +1,21 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
+  ClipboardList,
+  Filter,
   LayoutDashboard,
+  Menu,
   Package,
+  Settings,
   ShoppingCart,
   Store,
-  Menu,
-  X,
-  Settings,
-  Filter,
   Tag,
-  ClipboardList,
+  X,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/admin/dashboard", label: "대시보드", icon: LayoutDashboard },
@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="flex h-14 items-center justify-between px-4 border-b border-gray-700">
           {sidebarOpen && (
-            <span className="text-sm font-bold tracking-wide">SellerHub</span>
+            <span className="text-sm font-bold tracking-wide">TaoKorea</span>
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}

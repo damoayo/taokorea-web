@@ -1,12 +1,20 @@
 export const dynamic = "force-dynamic";
 
-import { getStats, StatusCount } from "@/lib/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Download, CheckCircle2, ShoppingBag, PauseCircle,
-  XCircle, EyeOff, Ban, TrendingUp, Users, ShoppingCart, BarChart2,
-} from "lucide-react";
 import DashboardCharts from "@/components/admin/dashboard-charts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getStats, StatusCount } from "@/lib/api";
+import {
+  Ban,
+  BarChart2,
+  CheckCircle2,
+  Download,
+  EyeOff,
+  PauseCircle,
+  ShoppingBag,
+  ShoppingCart,
+  TrendingUp, Users,
+  XCircle,
+} from "lucide-react";
 
 async function fetchStats(): Promise<StatusCount> {
   try {
@@ -41,7 +49,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">대시보드</h2>
-        <p className="text-sm text-gray-500 mt-1">SellerHub 운영 현황</p>
+        <p className="text-sm text-gray-500 mt-1">TaoKorea 운영 현황</p>
       </div>
 
       {/* 총계 배너 */}

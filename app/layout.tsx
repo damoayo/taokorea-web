@@ -8,7 +8,7 @@ import "./globals.css";
 const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SellerHub",
+  title: "TaoKorea",
   description: "타오바오 상품 관리 & 쇼핑몰",
 };
 
