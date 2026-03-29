@@ -31,7 +31,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center mb-2">
             <Image src="/logo.png" alt="TaoKorea" width={180} height={60} className="object-contain" />
           </div>
-          <p className="text-sm text-gray-500">타오바오 셀러 관리 플랫폼</p>
+          <p className="text-sm text-gray-500">해외직구 셀러 관리 플랫폼</p>
         </div>
 
         {/* 로그인 카드 */}
