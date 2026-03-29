@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -27,11 +28,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* 로고 */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">T</span>
-            </div>
-            <span className="text-2xl font-bold text-gray-900">TaoKorea</span>
+          <div className="inline-flex items-center justify-center mb-2">
+            <Image src="/logo.png" alt="TaoKorea" width={180} height={60} className="object-contain" />
           </div>
           <p className="text-sm text-gray-500">타오바오 셀러 관리 플랫폼</p>
         </div>
