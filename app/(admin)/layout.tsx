@@ -5,6 +5,7 @@ import {
   ClipboardList,
   Filter,
   LayoutDashboard,
+  LogOut,
   Menu,
   Package,
   Settings,
@@ -14,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 const navItems = [
@@ -32,7 +33,14 @@ const settingsItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  function handleLogout() {
+    localStorage.removeItem("isLoggedIn");
+    router.push("/");
+  }
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
@@ -107,8 +115,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <h1 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
             관리자 패널
           </h1>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span>admin</span>
+          <div className="relative">
+            <button
+              onClick={() => setUserMenuOpen((v) => !v)}
+              className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors"
+            >
+              <span>admin</span>
+              <span className="text-xs text-gray-400">▾</span>
+            </button>
+            {userMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setUserMenuOpen(false)}
+                />
+                <div className="absolute right-0 top-full mt-1 z-20 w-36 rounded-lg border bg-white shadow-lg py-1">
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut size={14} />
+                    로그아웃
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </header>
         <main className="flex-1 overflow-auto p-6">{children}</main>
