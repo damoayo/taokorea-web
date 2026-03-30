@@ -1,5 +1,5 @@
 // ============================================================
-// 파일 위치: app/(shop)/page.tsx
+// 파일 위치: app/(shop)/home/page.tsx
 // 역할: 쇼핑몰 메인 페이지 (서버 컴포넌트 - 데이터 fetch)
 // ============================================================
 // 🔑 이 파일은 서버에서 실행돼.
@@ -8,7 +8,7 @@
 // ============================================================
 
 import { getProducts, getCategories, type Product, type Category } from "@/lib/api";
-import HomeClient from "./HomeClient";
+import HomeClient from "../HomeClient";
 
 export default async function ShopMainPage() {
   // --- 서버에서 데이터 미리 가져오기 ---
