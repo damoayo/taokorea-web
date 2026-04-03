@@ -1,5 +1,12 @@
 export const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
+export interface AuthUser {
+  id: number;
+  email: string;
+  name: string;
+  role: string;
+}
+
 // ── 카테고리 ──────────────────────────────────────────
 export interface Category {
   id: number;
@@ -30,11 +37,33 @@ export interface ApplyFilterResult {
 }
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const headers = new Headers(options?.headers);
+
+  if (!(options?.body instanceof FormData) && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers,
+    credentials: "include",
     ...options,
   });
-  if (!res.ok) throw new Error(`API ${res.status}: ${path}`);
+
+  if (!res.ok) {
+    let message = `API ${res.status}: ${path}`;
+
+    try {
+      const error = (await res.json()) as {
+        error?: { message?: string };
+      };
+      message = error.error?.message ?? message;
+    } catch {
+      // Ignore non-JSON error responses and fall back to status-based message.
+    }
+
+    throw new Error(message);
+  }
+
   return res.json();
 }
 
@@ -43,6 +72,20 @@ export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
+}
+
+export async function login(email: string, password: string): Promise<AuthUser> {
+  const res = await apiFetch<ApiResponse<AuthUser>>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+  return res.data;
+}
+
+export async function logout(): Promise<void> {
+  await apiFetch<ApiResponse<null>>("/api/auth/logout", {
+    method: "POST",
+  });
 }
 
 // ── 타입 ──────────────────────────────────────────────
@@ -104,6 +147,8 @@ export interface ProductPage {
   size: number;
 }
 
+type ProductPageResponse = ProductPage | Product[];
+
 // ── API 함수 ──────────────────────────────────────────
 
 export async function getStats(): Promise<StatusCount> {
@@ -124,7 +169,7 @@ export async function getProducts(params?: {
   if (params?.status) q.set("status", params.status);
 
   // 여기서 일단 any로 받아서 우리가 직접 모양을 검사해 주는 게 제일 안전해!
-  const res = await apiFetch<ApiResponse<any>>(`/api/products?${q}`);
+  const res = await apiFetch<ApiResponse<ProductPageResponse>>(`/api/products?${q}`);
   
   // 🔥 디버깅용: 콘솔에 실제 백엔드가 준 데이터 모양 띄워보기
   console.log("백엔드가 준 getProducts 원본 데이터:", res.data);
@@ -195,6 +240,7 @@ export function uploadProductImage(
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `${BASE_URL}/api/products/${productId}/images`);
+    xhr.withCredentials = true;
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) {
@@ -343,6 +389,7 @@ export async function createShopListing(data: {
   const res = await fetch(`${BASE_URL}/api/shop-listings`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(data),
   });
   const json = await res.json() as ApiResponse<ShopListing> & { error?: { message?: string } };

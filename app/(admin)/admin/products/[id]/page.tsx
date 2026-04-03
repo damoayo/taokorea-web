@@ -1,4 +1,4 @@
-import { getProduct } from "@/lib/api";
+import { getServerProduct } from "@/lib/server-api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
@@ -24,7 +24,7 @@ export default async function ProductDetailPage({
   const { id } = await params;
   let product;
   try {
-    product = await getProduct(Number(id));
+    product = await getServerProduct(Number(id));
   } catch {
     notFound();
   }
