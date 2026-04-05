@@ -9,6 +9,9 @@ import DataGrid, {
 } from "devextreme-react/data-grid";
 import { useEffect, useState } from "react";
 
+// 환경변수가 없으면 로컬호스트를, 있으면 배포된 API 주소를 사용합니다.
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
 interface Keyword {
   id: number;
   keyword: string;
@@ -23,7 +26,7 @@ export default function KeywordManagerPage() {
 
   const fetchKeywords = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/keywords", {
+      const res = await fetch(`${API_URL}/api/keywords`, {
         cache: "no-store", 
       });
       const json = await res.json();
@@ -43,7 +46,7 @@ export default function KeywordManagerPage() {
     if (!newKeyword.trim()) return;
 
     try {
-      const res = await fetch("http://localhost:8080/api/keywords", {
+      const res = await fetch(`${API_URL}/api/keywords`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ keyword: newKeyword, reason: newReason }),
@@ -63,7 +66,7 @@ export default function KeywordManagerPage() {
   const handleUpdate = async (e: any) => {
     const { id, keyword, reason } = e.data;
     try {
-      await fetch(`http://localhost:8080/api/keywords/${id}`, {
+      await fetch(`${API_URL}/api/keywords/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ keyword, reason }),
@@ -80,7 +83,7 @@ export default function KeywordManagerPage() {
     setKeywords((prev) => prev.filter((k) => k.id !== id));
 
     try {
-      const res = await fetch(`http://localhost:8080/api/keywords/${id}`, {
+      const res = await fetch(`${API_URL}/api/keywords/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("서버 삭제 실패");
@@ -99,7 +102,7 @@ export default function KeywordManagerPage() {
     setKeywords([]);
 
     try {
-      const res = await fetch("http://localhost:8080/api/keywords/all", {
+      const res = await fetch(`${API_URL}/api/keywords/all`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("전체 삭제 실패");

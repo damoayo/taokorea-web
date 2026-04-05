@@ -119,7 +119,8 @@ export default function AdminProductsPage() {
   async function handleDelete(id: number) {
     if (!confirm("정말 이 상품을 삭제하시겠습니까?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/products/${id}`, { method: "DELETE" });
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+      const res = await fetch(`${API_URL}/api/products/${id}`, { method: "DELETE" });
       const json = await res.json();
       if (res.ok && json.success) {
         setToast({ type: "success", msg: "✅ 상품이 삭제되었습니다." });
