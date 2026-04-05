@@ -67,6 +67,24 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+async function tryDevAdminLogin(email: string, password: string): Promise<AuthUser | null> {
+  const response = await fetch("/api/dev-auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const payload = (await response.json()) as ApiResponse<AuthUser>;
+  return payload.data;
+}
+
 // ── 공통 래퍼 ─────────────────────────────────────────
 export interface ApiResponse<T> {
   success: boolean;
@@ -75,6 +93,12 @@ export interface ApiResponse<T> {
 }
 
 export async function login(email: string, password: string): Promise<AuthUser> {
+  const devAdminUser = await tryDevAdminLogin(email, password);
+
+  if (devAdminUser) {
+    return devAdminUser;
+  }
+
   const res = await apiFetch<ApiResponse<AuthUser>>("/api/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
@@ -83,6 +107,11 @@ export async function login(email: string, password: string): Promise<AuthUser> 
 }
 
 export async function logout(): Promise<void> {
+  await fetch("/api/dev-auth/logout", {
+    method: "POST",
+    credentials: "include",
+  }).catch(() => undefined);
+
   await apiFetch<ApiResponse<null>>("/api/auth/logout", {
     method: "POST",
   });

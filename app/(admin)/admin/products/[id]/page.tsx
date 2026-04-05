@@ -1,7 +1,8 @@
-import { getServerProduct } from "@/lib/server-api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
+import { getServerProduct } from "@/lib/server-api";
 import { ArrowLeft, Pencil } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +31,28 @@ export default async function ProductDetailPage({
   }
 
   const statusMeta = STATUS_LABEL[product.status] ?? { label: product.status, cls: "bg-gray-100 text-gray-600 border-gray-200" };
+
+  // [핵심 수정] 타오바오 상세페이지 HTML 정제 (이미지 강제 표시 및 최적화 로직)
+  let htmlContent = product.descriptionKo || product.description || "";
+  if (htmlContent) {
+    // 1. data-src 와 data-ks-lazyload 에 숨겨진 진짜 이미지 주소 꺼내기
+    htmlContent = htmlContent.replace(/<img([^>]*)data-src="([^"]+)"([^>]*)>/ig, (match: any, p1: string, p2: string, p3: string) => {
+      let imgUrl = p2;
+      if (imgUrl.startsWith('//')) imgUrl = 'https:' + imgUrl;
+      return `<img${p1}src="${imgUrl}"${p3}>`;
+    });
+    htmlContent = htmlContent.replace(/<img([^>]*)data-ks-lazyload="([^"]+)"([^>]*)>/ig, (match: any, p1: string, p2: string, p3: string) => {
+      let imgUrl = p2;
+      if (imgUrl.startsWith('//')) imgUrl = 'https:' + imgUrl;
+      return `<img${p1}src="${imgUrl}"${p3}>`;
+    });
+    // 2. 가짜 투명 이미지 삭제
+    htmlContent = htmlContent.replace(/src="[^"]*(s\.gif|spaceball\.gif)[^"]*"/ig, "");
+    // 3. 사진을 투명하게 만드는 타오바오 숨김 CSS 삭제
+    htmlContent = htmlContent.replace(/class="([^"]*)lazyload([^"]*)"/ig, 'class="$1 $2"');
+    // 4. 프로토콜 보정
+    htmlContent = htmlContent.replace(/src="\/\//ig, 'src="https://');
+  }
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -67,9 +90,12 @@ export default async function ProductDetailPage({
           <CardContent>
             <div className="aspect-square w-full max-w-xs mx-auto rounded-xl overflow-hidden border bg-gray-50 dark:bg-gray-800">
               {product.mainImageUrl ? (
-                <img
+                <Image
+                  unoptimized
                   src={product.mainImageUrl}
                   alt={product.titleKo ?? product.titleOriginal ?? ""}
+                  width={640}
+                  height={640}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -82,11 +108,14 @@ export default async function ProductDetailPage({
             {/* 추가 이미지 썸네일 */}
             {(product.images ?? []).length > 0 && (
               <div className="flex gap-2 flex-wrap mt-3">
-                {product.images!.map((img) => (
-                  <img
+                {product.images!.map((img: any) => (
+                  <Image
                     key={img.id}
+                    unoptimized
                     src={img.imageUrl}
                     alt=""
+                    width={56}
+                    height={56}
                     className="w-14 h-14 object-cover rounded-lg border border-gray-200"
                   />
                 ))}
@@ -120,20 +149,6 @@ export default async function ProductDetailPage({
         </Card>
       </div>
 
-      {/* ── 상품 설명 ── */}
-      {product.descriptionKo && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">상품 설명 (한국어)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-              {product.descriptionKo}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
       {/* ── SKU / 옵션 ── */}
       {(product.variants ?? []).length > 0 && (
         <Card>
@@ -152,7 +167,7 @@ export default async function ProductDetailPage({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                  {product.variants!.map((v) => (
+                  {product.variants!.map((v: any) => (
                     <tr key={v.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                       <td className="py-2 text-gray-500 font-mono text-xs">{v.skuId}</td>
                       <td className="py-2">{v.optionName ?? "—"}</td>
@@ -163,6 +178,23 @@ export default async function ProductDetailPage({
                 </tbody>
               </table>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+
+      {/* ── 상품 설명 ── */}
+      {htmlContent && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">상품 설명</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* HTML 형식으로 강제 렌더링 + 화면 이탈 방지용 Tailwind 적용 */}
+            <div 
+              className="[&_img]:max-w-full [&_img]:h-auto [&_img]:block [&_img]:mx-auto" 
+              dangerouslySetInnerHTML={{ __html: htmlContent }} 
+            />
           </CardContent>
         </Card>
       )}

@@ -13,8 +13,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import type { Product, Category } from "@/lib/api";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   ChevronLeft,
   ChevronRight,
@@ -30,8 +30,8 @@ import {
   Zap,
   Globe,
   ShieldCheck,
-  Eye,
 } from "lucide-react";
+import { passthroughImageLoader } from "@/lib/image";
 
 // ══════════════════════════════════════════════════════
 // 히어로 슬라이드 — 미묘한 배경 + 아이콘 장식
@@ -108,9 +108,13 @@ function ProductCard({ product, rank }: { product: Product; rank?: number }) {
         {/* 이미지 */}
         <div className="aspect-square bg-gray-50 dark:bg-gray-800 overflow-hidden relative">
           {product.mainImageUrl ? (
-            <img
+            <Image
+              loader={passthroughImageLoader}
+              unoptimized
               src={product.mainImageUrl}
-              alt={product.titleKo ?? product.titleOriginal}
+              alt={product.titleKo ?? product.titleOriginal ?? ""}
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (

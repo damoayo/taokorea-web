@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { getProduct, updateProduct, Product, ProductImage } from "@/lib/api";
+import ProductImageGallery from "@/components/admin/product-image-gallery";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import TextBox from "devextreme-react/text-box";
+import { getProduct, Product, ProductImage, updateProduct } from "@/lib/api";
+import DataGrid, { Column } from "devextreme-react/data-grid";
 import NumberBox from "devextreme-react/number-box";
 import SelectBox from "devextreme-react/select-box";
 import TextArea from "devextreme-react/text-area";
+import TextBox from "devextreme-react/text-box";
 import Toast from "devextreme-react/toast";
-import DataGrid, { Column } from "devextreme-react/data-grid";
-import ProductImageGallery from "@/components/admin/product-image-gallery";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const STATUS_OPTIONS = [
   { value: "IMPORTED",  label: "가져옴" },
@@ -49,12 +49,32 @@ export default function ProductEditPage() {
     getProduct(id).then((p) => {
       setProduct(p);
       setImages(p.images ?? []);
+
+      // [핵심 해결] 타오바오 상세페이지 HTML 정제 및 최적화
+      // 한국어 번역본이 없으면 중국어 원본(description)을 가져와서 정제합니다.
+      let htmlContent = p.descriptionKo || p.description || "";
+      if (htmlContent) {
+        htmlContent = htmlContent.replace(/<img([^>]*)data-src="([^"]+)"([^>]*)>/ig, (match, p1, p2, p3) => {
+          let imgUrl = p2;
+          if (imgUrl.startsWith('//')) imgUrl = 'https:' + imgUrl;
+          return `<img${p1}src="${imgUrl}"${p3}>`;
+        });
+        htmlContent = htmlContent.replace(/<img([^>]*)data-ks-lazyload="([^"]+)"([^>]*)>/ig, (match, p1, p2, p3) => {
+          let imgUrl = p2;
+          if (imgUrl.startsWith('//')) imgUrl = 'https:' + imgUrl;
+          return `<img${p1}src="${imgUrl}"${p3}>`;
+        });
+        htmlContent = htmlContent.replace(/src="[^"]*(s\.gif|spaceball\.gif)[^"]*"/ig, "");
+        htmlContent = htmlContent.replace(/class="([^"]*)lazyload([^"]*)"/ig, 'class="$1 $2"');
+        htmlContent = htmlContent.replace(/src="\/\//ig, 'src="https://');
+      }
+
       setForm({
         titleKo:         p.titleKo         ?? "",
         sellingPriceKrw: Number(p.sellingPriceKrw) ?? 0,
         status:          p.status,
         mainImageUrl:    p.mainImageUrl    ?? "",
-        descriptionKo:   p.descriptionKo   ?? "",
+        descriptionKo:   htmlContent, // 정제된 깨끗한 HTML을 폼에 삽입!
       });
     });
   }, [id]);
@@ -200,22 +220,6 @@ export default function ProductEditPage() {
         </Card>
       </div>
 
-      {/* ── 상품 설명 ── */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">상품 설명 (한국어)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TextArea
-            value={form.descriptionKo}
-            onValueChanged={(e) => patch("descriptionKo", e.value)}
-            stylingMode="outlined"
-            height={180}
-            placeholder="한국어 상품 설명 입력..."
-          />
-        </CardContent>
-      </Card>
-
       {/* ── SKU / 옵션 ── */}
       {(product.variants ?? []).length > 0 && (
         <Card>
@@ -243,6 +247,43 @@ export default function ProductEditPage() {
           </CardContent>
         </Card>
       )}
+
+
+      {/* ── 상품 설명 (미리보기 + 편집) ── */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">상품 설명 (미리보기 및 편집)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          
+          {/* HTML 시각적 미리보기 영역 */}
+          <div className="bg-gray-50 border rounded-lg p-4 max-h-[400px] overflow-y-auto">
+            {form.descriptionKo ? (
+              <div 
+                className="[&_img]:max-w-full [&_img]:h-auto [&_img]:block [&_img]:mx-auto" 
+                dangerouslySetInnerHTML={{ __html: form.descriptionKo }} 
+              />
+            ) : (
+              <div className="text-gray-400 text-sm text-center py-10">상품 설명이 없습니다.</div>
+            )}
+          </div>
+
+          {/* 원본 HTML 텍스트 편집 영역 */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">HTML 소스 코드</label>
+            <TextArea
+              value={form.descriptionKo}
+              onValueChanged={(e) => patch("descriptionKo", e.value)}
+              stylingMode="outlined"
+              height={150}
+              placeholder="HTML 코드를 직접 수정할 수 있습니다..."
+            />
+          </div>
+
+        </CardContent>
+      </Card>
+
+
 
       {/* ── 토스트 알림 ── */}
       <Toast

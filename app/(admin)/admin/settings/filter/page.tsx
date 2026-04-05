@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import NumberBox from "devextreme-react/number-box";
-import Button from "devextreme-react/button";
 import Toast from "devextreme-react/toast";
 import { getFilterSettings, updateFilterSettings, applyProfitFilter, FilterSettings, ApplyFilterResult } from "@/lib/api";
 

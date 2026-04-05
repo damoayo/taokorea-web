@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
+import NextImage from "next/image";
 import { Star, Trash2, Upload } from "lucide-react";
 import { uploadProductImage, deleteProductImage } from "@/lib/api";
 import type { ProductImage } from "@/lib/api";
+import { passthroughImageLoader } from "@/lib/image";
 
 // ── 제한 상수 ───────────────────────────────────────────
 const MAX_SIZE_MB    = 2;
@@ -157,7 +159,15 @@ export default function ProductImageGallery({
       {/* 대표 이미지 미리보기 */}
       <div className="aspect-square w-full max-w-xs mx-auto rounded-xl overflow-hidden border bg-gray-50 dark:bg-gray-800">
         {mainImageUrl ? (
-          <img src={mainImageUrl} alt="" className="w-full h-full object-cover" />
+          <NextImage
+            loader={passthroughImageLoader}
+            unoptimized
+            src={mainImageUrl}
+            alt=""
+            width={512}
+            height={512}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-gray-300 gap-2">
             <span className="text-5xl">📦</span>
@@ -215,7 +225,15 @@ export default function ProductImageGallery({
               }`}
             >
               <div className="aspect-square bg-gray-100 dark:bg-gray-800">
-                <img src={img.imageUrl} alt="" className="w-full h-full object-cover" />
+                <NextImage
+                  loader={passthroughImageLoader}
+                  unoptimized
+                  src={img.imageUrl}
+                  alt=""
+                  width={256}
+                  height={256}
+                  className="w-full h-full object-cover"
+                />
               </div>
 
               {/* 대표 이미지 별 버튼 */}
@@ -251,7 +269,15 @@ export default function ProductImageGallery({
           {uploading.map((u) => (
             <div key={u.tempId} className="relative rounded-lg overflow-hidden border-2 border-indigo-300">
               <div className="aspect-square bg-gray-100 dark:bg-gray-800">
-                <img src={u.preview} alt="" className="w-full h-full object-cover opacity-40" />
+                <NextImage
+                  loader={passthroughImageLoader}
+                  unoptimized
+                  src={u.preview}
+                  alt=""
+                  width={256}
+                  height={256}
+                  className="w-full h-full object-cover opacity-40"
+                />
               </div>
               <div className="absolute inset-0 flex flex-col items-center justify-end pb-2 px-2">
                 <div className="w-full bg-gray-300/70 rounded-full h-1.5">

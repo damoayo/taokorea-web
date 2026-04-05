@@ -50,8 +50,7 @@ export default function AdminShell({
       try {
         await logout();
       } finally {
-        router.push("/login");
-        router.refresh();
+        router.replace("/login");
       }
     });
   }

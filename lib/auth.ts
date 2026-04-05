@@ -1,10 +1,9 @@
 import "server-only";
 
 import { BASE_URL, type AuthUser } from "@/lib/api";
+import { DEV_ADMIN_COOKIE_NAME, SESSION_COOKIE_NAME, getDevAdminUser, isDevAdminSession } from "@/lib/dev-auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-
-const SESSION_COOKIE_NAME = "SELLERHUB_SESSION";
 
 interface AuthSuccessResponse<T> {
   success: true;
@@ -19,6 +18,11 @@ function buildCookieHeader(items: { name: string; value: string }[]) {
 export async function getCurrentUser() {
   const cookieStore = await cookies();
   const session = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const devAdminSession = cookieStore.get(DEV_ADMIN_COOKIE_NAME)?.value;
+
+  if (isDevAdminSession(devAdminSession)) {
+    return getDevAdminUser();
+  }
 
   if (!session) {
     return null;

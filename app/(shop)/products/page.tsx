@@ -1,4 +1,5 @@
 import { getProducts, Product } from "@/lib/api";
+import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,9 +10,12 @@ function ProductCard({ product }: { product: Product }) {
       <Card className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
         <div className="aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden">
           {product.mainImageUrl ? (
-            <img
+            <Image
+              unoptimized
               src={product.mainImageUrl}
-              alt={product.titleKo ?? product.titleOriginal}
+              alt={product.titleKo ?? product.titleOriginal ?? ""}
+              width={640}
+              height={640}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import DataGrid, {
   Column,
   Paging,
@@ -20,6 +21,7 @@ import {
   LISTING_STATUS_META,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { passthroughImageLoader } from "@/lib/image";
 
 const PLATFORM_TABS = [
   { value: "",            label: "전체" },
@@ -117,9 +119,13 @@ export default function ShopListingsPage() {
     return (
       <div className="flex items-center gap-2 min-w-0">
         {sl.productMainImage ? (
-          <img
+          <Image
+            loader={passthroughImageLoader}
+            unoptimized
             src={sl.productMainImage}
             alt=""
+            width={36}
+            height={36}
             className="w-9 h-9 rounded object-cover shrink-0 border border-gray-100"
           />
         ) : (
